@@ -19,19 +19,24 @@ Veewee::Session.declare({
     'vagrant<Enter>',
     'vagrant<Enter>',
 
-    # 'gdisk /dev/sda<Enter><Wait><Wait>',
-    # 'o<Enter><Wait>','Y<Enter><Wait><Wait>', #create new MBR
+    #partition hd
+    # (leave space for MBR)
+    # 512 /swap
+    # x   rest
+    'DRIVE=/dev/sda<Enter>',
+    'sfdisk -uM $DRIVE << EOF<ENTER>',
+    '1,512,S<Enter>',
+    ',,L<Enter>',
+    'EOF<Enter>',
 
-    # 'n<Enter><Wait>','<Enter><Wait>','<Enter>+100M','<Enter><Wait>','<Enter><Wait><Wait>', #/boot
-    # 'c<Enter><Wait>','1<Enter><Wait>','Boot<Enter><Wait><Wait>',
+    #format partitions
+    'mkswap /dev/sda2 -L swapfs<ENTER><Wait><Wait><Wait>',
+    'swapon /dev/sda2<ENTER><Wait><Wait><Wait>',
+    'mkfs.ext2 /dev/sda1 -L bootfs<ENTER><Wait><Wait><Wait>',
+    'mkfs.ext4 /dev/sda3 -L rootfs<ENTER><Wait><Wait><Wait>',
 
-    # 'n<Enter><Wait>','<Enter><Wait>','<Enter><Wait>+512M','<Enter><Wait>8200','<Enter><Wait><Wait>', #/swap
-    # 'c<Enter><Wait>','2<Enter><Wait>','Swap<Enter><Wait><Wait>',
-
-    # 'n<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait><Wait>', #/root
-    # 'c<Enter><Wait>','3<Enter><Wait>','FS<Enter><Wait><Wait>',
-
-    # 'w<Enter><Wait>','Y<Enter><Wait><Wait><Wait><Wait>',
+    #mount partitions
+    'mount -t ext4 /dev/sda3 /mnt<Enter>',
 
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],

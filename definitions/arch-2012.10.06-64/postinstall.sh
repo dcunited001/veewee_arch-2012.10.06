@@ -4,33 +4,6 @@
 PKGSRC=cd
 date > /etc/vagrant_box_build_time
 
-#get hd info
-DRIVE=/dev/sda
-# SIZE=`fdisk -l $DRIVE | grep Disk | awk '{print $5}'`
-# CYLINDERS=`sfdisk -d $DRIVE | grep Disk | awk '{print $3}'`
-# HEADS=`sfdisk -d $DRIVE | grep Disk | awk '{print $5}'`
-# SECTORS=`sfdisk -d $DRIVE | grep Disk | awk '{print $7}'`
-
-#partition hd
-# (leave space for MBR)
-# 512 /swap
-# x   rest
-sfdisk -uM $DRIVE << EOF
-1,512,S
-,,L
-EOF
-
-#format partitions
-mkfs.ext2 /dev/sda1 -L bootfs
-mkswap /dev/sda2 -L swapfs
-swapon /dev/sda2
-mkfs.ext4 /dev/sda3 -L rootfs
-
-#mount partitions
-mkdir /mnt/boot
-mount -t ext4 /dev/sda3 /mnt
-mount -t ext2 /dev/sda1 /mnt/boot
-
 pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh
 
 #generate fstab
