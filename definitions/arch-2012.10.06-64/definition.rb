@@ -25,7 +25,7 @@ Veewee::Session.declare({
     # x   rest
     'DRIVE=/dev/sda<Enter>',
     'sfdisk -uM $DRIVE <<EOF',
-    '<ENTER>',
+    '<Enter>',
     '1,512,S<Enter>',
     ',,L<Enter>',
     'EOF<Enter>',
