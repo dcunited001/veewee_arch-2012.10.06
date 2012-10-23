@@ -24,7 +24,8 @@ Veewee::Session.declare({
     # 512 /swap
     # x   rest
     'DRIVE=/dev/sda<Enter>',
-    'sfdisk -uM $DRIVE << EOF<ENTER>',
+    'sfdisk -uM $DRIVE <<EOF',
+    '<ENTER>',
     '1,512,S<Enter>',
     ',,L<Enter>',
     'EOF<Enter>',
