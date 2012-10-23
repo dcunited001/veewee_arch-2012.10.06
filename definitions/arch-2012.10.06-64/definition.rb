@@ -23,8 +23,9 @@ Veewee::Session.declare({
     # (leave space for MBR)
     # 512 /swap
     # x   rest
+    # --DOS flag makes sfdisk leave room for MBR
     'DRIVE=/dev/sda<Enter>',
-    'sfdisk -uM $DRIVE <<EOF',
+    'sfdisk -uM $DRIVE --DOS <<EOF',
     '<Enter>',
     '1,512,S<Enter>',
     ',,L<Enter>',

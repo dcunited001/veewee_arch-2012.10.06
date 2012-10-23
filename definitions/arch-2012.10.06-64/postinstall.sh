@@ -32,7 +32,7 @@ chroot /mnt <<ENDCHROOT
 # make sure network is up and a nameserver is available
 dhcpcd eth0
 
-# set up time
+# time/locale
 ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
 # sudo setup
@@ -94,7 +94,9 @@ cd puppet
 ruby install.rb --bindir=/usr/bin --sbindir=/sbin
 
 # set up networking
-[[ $PKGSRC == 'net' ]] && sed -i 's/^\(interface=*\)/\1eth0/' /etc/rc.conf
+# (this command blows up due to missing rc.conf, etc)
+#   rc.conf has been removed, should i re-add package?
+# [[ $PKGSRC == 'net' ]] && sed -i 's/^\(interface=*\)/\1eth0/' /etc/rc.conf
 
 #build initial ram disk
 # (requires /proc to be mounted)
@@ -104,11 +106,12 @@ mkinitcpio -p linux
 ENDCHROOT
 
 #install grub
-grub-install --boot-directory=/mnt/boot --target=i386-pc --recheck --debug /dev/sda
+grub-install --boot-directory=/mnt/boot --target=i386-pc /dev/sda
 grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 # take down network to prevent next postinstall.sh from starting too soon
-/etc/rc.d/network stop
+#   (Again, rc.conf has mostly been replaced with systemctl)
+# /etc/rc.d/network stop
 
 # and reboot!
 reboot
