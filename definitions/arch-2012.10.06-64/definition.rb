@@ -6,7 +6,7 @@ Veewee::Session.declare({
   :iso_src => "http://mirror.cc.columbia.edu/pub/linux/archlinux/iso/2012.10.06/archlinux-2012.10.06-dual.iso",
   :iso_md5 => "9e9057702af5826a3b924233bf44fe66",
   :iso_download_timeout => "1000",
-  :boot_wait => "15", :boot_cmd_sequence => [
+  :boot_wait => "10", :boot_cmd_sequence => [
     '<Enter>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
@@ -19,15 +19,15 @@ Veewee::Session.declare({
     'vagrant<Enter>',
     'vagrant<Enter>',
 
-    'gdisk /dev/sda<Enter><Wait>',
-    'o<Enter>Y<Enter><Wait>', #create new MBR
-    'n<Enter><Enter><Enter>+100M<Enter><Enter><Wait>', #/boot
-    'c<Enter>1<Enter>Boot<Enter>',
-    'n<Enter><Enter><Enter>+512M<Enter>8200<Enter><Wait>', #/swap
-    'c<Enter>2<Enter>Swap<Enter>',
-    'n<Enter><Enter><Enter><Enter><Enter><Wait>', #/root
-    'c<Enter>3<Enter>FS<Enter>',
-    'w<Enter><Wait>Y<Enter><Wait><Wait><Wait>'
+    'gdisk /dev/sda<Enter><Wait><Wait>',
+    'o<Enter><Wait>Y<Enter><Wait><Wait>', #create new MBR
+    'n<Enter><Wait><Enter><Wait><Enter>+100M<Enter><Wait><Enter><Wait><Wait>', #/boot
+    'c<Enter><Wait>1<Enter><Wait>Boot<Enter><Wait><Wait>',
+    'n<Enter><Wait><Enter><Wait><Enter><Wait>+512M<Enter><Wait>8200<Enter><Wait><Wait>', #/swap
+    'c<Enter><Wait>2<Enter><Wait>Swap<Enter><Wait><Wait>',
+    'n<Enter><Wait><Enter><Wait><Enter><Wait><Enter><Wait><Enter><Wait><Wait>', #/root
+    'c<Enter><Wait>3<Enter><Wait>FS<Enter><Wait><Wait>',
+    'w<Enter><Wait>Y<Enter><Wait><Wait><Wait><Wait>',
 
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],
