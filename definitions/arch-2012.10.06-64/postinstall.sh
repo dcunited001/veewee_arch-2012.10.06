@@ -4,10 +4,13 @@
 PKGSRC=cd
 date > /etc/vagrant_box_build_time
 
+#download base packages
 pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh
 
 #generate fstab
 genfstab -p /mnt >> /mnt/etc/fstab
+
+#install grub
 arch-chroot /mnt pacman -S --noconfirm grub-bios
 
 # launch automated install
@@ -18,15 +21,19 @@ arch-chroot /mnt pacman -S --noconfirm grub-bios
 /bin/cp -f /root/.vbox_version /mnt/root/.vbox_version
 
 # chroot into the new system
-# (these can be replaced with arch-chroot)
-arch-chroot /mnt <<ENDCHROOT
-#mount -o bind /dev /mnt/dev
-#mount -o bind /sys /mnt/sys
-#mount -t proc none /mnt/proc
-#chroot /mnt <<ENDCHROOT
+# => (these can be replaced with arch-chroot)
+#   => (However, this is apparently not true...)
+# arch-chroot /mnt <<ENDCHROOT
+mount -o bind /dev /mnt/dev
+mount -o bind /sys /mnt/sys
+mount -t proc none /mnt/proc
+chroot /mnt <<ENDCHROOT
 
-# # make sure network is up and a nameserver is available
+# make sure network is up and a nameserver is available
 dhcpcd eth0
+
+# set up time
+ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
 # sudo setup
 # note: do not use tabs here, it autocompletes and borks the sudoers file
@@ -89,8 +96,16 @@ ruby install.rb --bindir=/usr/bin --sbindir=/sbin
 # set up networking
 [[ $PKGSRC == 'net' ]] && sed -i 's/^\(interface=*\)/\1eth0/' /etc/rc.conf
 
+#build initial ram disk
+# (requires /proc to be mounted)
+mkinitcpio -p linux
+
 # leave the chroot
 ENDCHROOT
+
+#install grub
+grub-install --boot-directory=/mnt/boot --target=i386-pc --recheck --debug /dev/sda
+grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 # take down network to prevent next postinstall.sh from starting too soon
 /etc/rc.d/network stop
