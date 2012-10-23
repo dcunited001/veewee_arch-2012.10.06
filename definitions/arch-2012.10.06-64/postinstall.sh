@@ -1,9 +1,25 @@
 #!/bin/bash
 
-# var to determine package source
+# # var to determine package source
 PKGSRC=cd
-
 date > /etc/vagrant_box_build_time
+
+#format partitions
+mkfs.ext2 /dev/sda1 -L bootfs
+mkswap /dev/sda2 -L swapfs
+swapon /dev/sda2
+mkfs.ext4 /dev/sda3 -L rootfs
+
+#mount partitions
+mkdir /mnt/boot
+mount -t ext4 /dev/sda3 /mnt
+mount -t ext2 /dev/sda1 /mnt/boot
+
+pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh
+
+#generate fstab
+genfstab -p /mnt >> /mnt/etc/fstab
+arch-chroot /mnt pacman -S --noconfirm grub-bios
 
 # launch automated install
 #  (AIF removed from Arch)
@@ -18,7 +34,7 @@ mount -o bind /sys /mnt/sys
 mount -t proc none /mnt/proc
 chroot /mnt <<ENDCHROOT
 
-# make sure network is up and a nameserver is available
+# # make sure network is up and a nameserver is available
 dhcpcd eth0
 
 # sudo setup
