@@ -31,13 +31,12 @@ Veewee::Session.declare({
     'EOF<Enter>',
 
     #format partitions
-    'mkswap /dev/sda2 -L swapfs<Enter><Wait><Wait><Wait>',
-    'swapon /dev/sda2<Enter><Wait><Wait><Wait>',
-    'mkfs.ext2 /dev/sda1 -L bootfs<Enter><Wait><Wait><Wait>',
-    'mkfs.ext4 /dev/sda3 -L rootfs<Enter><Wait><Wait><Wait>',
+    'mkswap /dev/sda1 -L swapfs<Enter><Wait><Wait><Wait>',
+    'swapon /dev/sda1<Enter><Wait><Wait><Wait>',
+    'mkfs.ext4 /dev/sda2 -L rootfs<Enter><Wait><Wait><Wait>',
 
     #mount partitions
-    'mount -t ext4 /dev/sda3 /mnt<Enter>',
+    'mount -t ext4 /dev/sda2 /mnt<Enter>',
 
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],
