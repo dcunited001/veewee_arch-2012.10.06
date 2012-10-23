@@ -6,7 +6,7 @@ Veewee::Session.declare({
   :iso_src => "http://mirror.cc.columbia.edu/pub/linux/archlinux/iso/2012.10.06/archlinux-2012.10.06-dual.iso",
   :iso_md5 => "9e9057702af5826a3b924233bf44fe66",
   :iso_download_timeout => "1000",
-  :boot_wait => "10", :boot_cmd_sequence => [
+  :boot_wait => "5", :boot_cmd_sequence => [
     '<Enter>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
@@ -30,12 +30,12 @@ Veewee::Session.declare({
 
     # 'n<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait><Wait>', #/root
     # 'c<Enter><Wait>','3<Enter><Wait>','FS<Enter><Wait><Wait>',
-    
+
     # 'w<Enter><Wait>','Y<Enter><Wait><Wait><Wait><Wait>',
 
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],
-  :kickstart_port => "7122", :kickstart_timeout => "10000", :kickstart_file => "aif.cfg",
+  # :kickstart_port => "7122", :kickstart_timeout => "10000", :kickstart_file => "aif.cfg",
   :ssh_login_timeout => "10000", :ssh_user => "root", :ssh_password => "vagrant", :ssh_key => "",
   :ssh_host_port => "7222", :ssh_guest_port => "22",
   :sudo_cmd => "sh '%f'",

@@ -12,12 +12,11 @@ DRIVE=/dev/sda
 # SECTORS=`sfdisk -d $DRIVE | grep Disk | awk '{print $7}'`
 
 #partition hd
-# 100 /boot
+# (leave space for MBR)
 # 512 /swap
 # x   rest
 sfdisk -uM $DRIVE << EOF
-0,100,L,*
-,512,S
+1,512,S
 ,,L
 EOF
 
@@ -46,10 +45,12 @@ arch-chroot /mnt pacman -S --noconfirm grub-bios
 /bin/cp -f /root/.vbox_version /mnt/root/.vbox_version
 
 # chroot into the new system
-mount -o bind /dev /mnt/dev
-mount -o bind /sys /mnt/sys
-mount -t proc none /mnt/proc
-chroot /mnt <<ENDCHROOT
+# (these can be replaced with arch-chroot)
+arch-chroot /mnt <<ENDCHROOT
+#mount -o bind /dev /mnt/dev
+#mount -o bind /sys /mnt/sys
+#mount -t proc none /mnt/proc
+#chroot /mnt <<ENDCHROOT
 
 # # make sure network is up and a nameserver is available
 dhcpcd eth0
@@ -83,17 +84,18 @@ echo "sshd:	ALL" > /etc/hosts.allow
 echo "ALL:	ALL" > /etc/hosts.deny
 
 # make sure sshd starts
-sed -i 's:^DAEMONS\(.*\))$:DAEMONS\1 sshd):' /etc/rc.conf
+# rc.conf removed (now using systemd)
+# sed -i 's:^DAEMONS\(.*\))$:DAEMONS\1 sshd):' /etc/rc.conf
 
 # install mitchellh's ssh key
 mkdir /home/vagrant/.ssh
 chmod 700 /home/vagrant/.ssh
-wget --no-check-certificate 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' -O /home/vagrant/.ssh/authorized_keys
+curl 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' > /home/vagrant/.ssh/authorized_keys
 chmod 600 /home/vagrant/.ssh/authorized_keys
 chown -R vagrant /home/vagrant/.ssh
 
 # choose a mirror
-sed -i 's/^#\(.*leaseweb.*\)/\1/' /etc/pacman.d/mirrorlist
+# sed -i 's/^#\(.*leaseweb.*\)/\1/' /etc/pacman.d/mirrorlist
 
 # update pacman
 [[ $PKGSRC == 'cd' ]] && pacman -Syy
