@@ -4,6 +4,23 @@
 PKGSRC=cd
 date > /etc/vagrant_box_build_time
 
+#get hd info
+DRIVE=/dev/sda
+# SIZE=`fdisk -l $DRIVE | grep Disk | awk '{print $5}'`
+# CYLINDERS=`sfdisk -d $DRIVE | grep Disk | awk '{print $3}'`
+# HEADS=`sfdisk -d $DRIVE | grep Disk | awk '{print $5}'`
+# SECTORS=`sfdisk -d $DRIVE | grep Disk | awk '{print $7}'`
+
+#partition hd
+# 100 /boot
+# 512 /swap
+# x   rest
+sfdisk -uM $DRIVE << EOF
+0,100,L,*
+,512,S
+,,L
+EOF
+
 #format partitions
 mkfs.ext2 /dev/sda1 -L bootfs
 mkswap /dev/sda2 -L swapfs

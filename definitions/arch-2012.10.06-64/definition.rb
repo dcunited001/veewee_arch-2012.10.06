@@ -19,15 +19,19 @@ Veewee::Session.declare({
     'vagrant<Enter>',
     'vagrant<Enter>',
 
-    'gdisk /dev/sda<Enter><Wait><Wait>',
-    'o<Enter><Wait>Y<Enter><Wait><Wait>', #create new MBR
-    'n<Enter><Wait><Enter><Wait><Enter>+100M<Enter><Wait><Enter><Wait><Wait>', #/boot
-    'c<Enter><Wait>1<Enter><Wait>Boot<Enter><Wait><Wait>',
-    'n<Enter><Wait><Enter><Wait><Enter><Wait>+512M<Enter><Wait>8200<Enter><Wait><Wait>', #/swap
-    'c<Enter><Wait>2<Enter><Wait>Swap<Enter><Wait><Wait>',
-    'n<Enter><Wait><Enter><Wait><Enter><Wait><Enter><Wait><Enter><Wait><Wait>', #/root
-    'c<Enter><Wait>3<Enter><Wait>FS<Enter><Wait><Wait>',
-    'w<Enter><Wait>Y<Enter><Wait><Wait><Wait><Wait>',
+    # 'gdisk /dev/sda<Enter><Wait><Wait>',
+    # 'o<Enter><Wait>','Y<Enter><Wait><Wait>', #create new MBR
+
+    # 'n<Enter><Wait>','<Enter><Wait>','<Enter>+100M','<Enter><Wait>','<Enter><Wait><Wait>', #/boot
+    # 'c<Enter><Wait>','1<Enter><Wait>','Boot<Enter><Wait><Wait>',
+
+    # 'n<Enter><Wait>','<Enter><Wait>','<Enter><Wait>+512M','<Enter><Wait>8200','<Enter><Wait><Wait>', #/swap
+    # 'c<Enter><Wait>','2<Enter><Wait>','Swap<Enter><Wait><Wait>',
+
+    # 'n<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait>','<Enter><Wait><Wait>', #/root
+    # 'c<Enter><Wait>','3<Enter><Wait>','FS<Enter><Wait><Wait>',
+    
+    # 'w<Enter><Wait>','Y<Enter><Wait><Wait><Wait><Wait>',
 
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],
