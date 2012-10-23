@@ -1,17 +1,29 @@
 #!/bin/bash
 
+LOGGR='LOG'
+
 # # var to determine package source
 PKGSRC=cd
 date > /etc/vagrant_box_build_time
+if [ "$LOGGR" == "LOG" ]; then
+  echo "========================================" >> /mnt/log.txt
+  date >> /mnt/log.txt
+fi
 
 #download base packages
 pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh glibc git pkg-config fakeroot
 
+if [ "$LOGGR" == "LOG" ]; then
+  echo "installed packages" >> /mnt/log.txt
+fi
 #generate fstab
 genfstab -p /mnt >> /mnt/etc/fstab
+if [ "$LOGGR" == "LOG" ]; then
+  cat /mnt/etc/fstab >> /mnt/log.txt
+fi
 
 #install grub
-arch-chroot /mnt pacman -S --noconfirm grub-bios
+arch-chroot /mnt pacman -S --noconfirm grub-bios >> /mnt/log.txt
 
 # launch automated install
 #  (AIF removed from Arch)
@@ -24,9 +36,9 @@ arch-chroot /mnt pacman -S --noconfirm grub-bios
 # => (these can be replaced with arch-chroot)
 #   => (However, this is apparently not true...)
 # arch-chroot /mnt <<ENDCHROOT
-mount -o bind /dev /mnt/dev
-mount -o bind /sys /mnt/sys
-mount -t proc none /mnt/proc
+# mount -o bind /dev /mnt/dev
+# mount -o bind /sys /mnt/sys
+# mount -t proc none /mnt/proc
 chroot /mnt <<ENDCHROOT
 
 # make sure network is up and a nameserver is available
@@ -104,12 +116,14 @@ ruby install.rb --bindir=/usr/bin --sbindir=/sbin
 # (requires /proc to be mounted)
 mkinitcpio -p linux
 
-# leave the chroot
 ENDCHROOT
 
 #install grub
 grub-install --root-directory=/mnt/ --boot-directory=/mnt/boot --target=i386-pc /dev/sda
+cp /mnt/usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /mnt/boot/grub/locale/en.mo > /mnt/log.txt
 grub-mkconfig -o /mnt/boot/grub/grub.cfg
+
+vim /mnt/boot/grub/grub.cfg
 
 #modify bootloader config
 
