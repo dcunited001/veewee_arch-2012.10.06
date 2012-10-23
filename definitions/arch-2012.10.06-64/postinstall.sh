@@ -5,7 +5,7 @@ PKGSRC=cd
 date > /etc/vagrant_box_build_time
 
 #download base packages
-pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh
+pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh glibc git pkg-config fakeroot
 
 #generate fstab
 genfstab -p /mnt >> /mnt/etc/fstab
@@ -86,7 +86,9 @@ pacman-db-upgrade
 pacman -Syy
 
 # install some packages
-pacman -S --noconfirm glibc git pkg-config fakeroot
+# having problems with these packages now, installing above
+#  (inappropriate ioctl for device?)
+# pacman -S --noconfirm glibc git pkg-config fakeroot
 gem install --no-ri --no-rdoc chef facter
 cd /tmp
 git clone https://github.com/puppetlabs/puppet.git
@@ -106,8 +108,10 @@ mkinitcpio -p linux
 ENDCHROOT
 
 #install grub
-grub-install --boot-directory=/mnt/boot --target=i386-pc /dev/sda
+grub-install --root-directory=/mnt/ --boot-directory=/mnt/boot --target=i386-pc /dev/sda
 grub-mkconfig -o /mnt/boot/grub/grub.cfg
+
+#modify bootloader config
 
 # take down network to prevent next postinstall.sh from starting too soon
 #   (Again, rc.conf has mostly been replaced with systemctl)

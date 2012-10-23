@@ -12,33 +12,25 @@ Veewee::Session.declare({
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     'dhcpcd eth0<Enter><Wait><Wait>',
-
     'echo "sshd: ALL" > /etc/hosts.allow<Enter>',
-
     'passwd<Enter>',
     'vagrant<Enter>',
     'vagrant<Enter>',
 
-    #partition hd
-    # (leave space for MBR)
-    # 512 /swap
-    # x   rest
-    # --DOS flag makes sfdisk leave room for MBR
+    #partition
     'DRIVE=/dev/sda<Enter>',
-    'sfdisk -uM $DRIVE --DOS <<EOF',
-    '<Enter>',
-    '1,512,S<Enter>',
-    ',,L<Enter>',
+    'sfdisk -uM $DRIVE --DOS <<EOF<Enter>',
+    '1,512,S<Enter>', # 512 /swap
+    ',,L,*<Enter>',     # x   rest
     'EOF<Enter>',
 
-    #format partitions
+    #format/mount
     'mkswap /dev/sda1 -L swapfs<Enter><Wait><Wait><Wait>',
     'swapon /dev/sda1<Enter><Wait><Wait><Wait>',
-    'mkfs.ext4 /dev/sda2 -L rootfs<Enter><Wait><Wait><Wait>',
+    'mkfs.ext4 /dev/sda2 -L rootfs<Enter><Wait><Wait><Wait><Wait>',
+    'mount -t ext4 /dev/sda2 /mnt<Enter><Wait>',
 
-    #mount partitions
-    'mount -t ext4 /dev/sda2 /mnt<Enter>',
-
+    #start ssh
     '/etc/rc.d/sshd start<Enter><Wait>',
   ],
   # :kickstart_port => "7122", :kickstart_timeout => "10000", :kickstart_file => "aif.cfg",
