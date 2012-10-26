@@ -18,7 +18,7 @@ LOCALE_UTF8="$LOCALE.UTF-8"
 CHROOT=/mnt
 PAC_BASE="base base-devel"
 PAC_GRUB="grub-bios os-prober"
-PAC_1="systemd sudo vim linux-headers make gcc openssh git ruby yajl zsh glibc pkg-config fakeroot"
+PAC_1="sudo vim linux-headers openssh git ruby yajl zsh"
 
 DEVICE=/dev/sda
 PART1=/dev/sda1
@@ -156,8 +156,8 @@ print_header "adding pacages..."
 pacman -S --noconfirm $PAC_1
 
 print_header "enabling services..."
-systemctl enable sshd
-systemctl enable dhcp
+systemctl enable sshd.service
+systemctl enable dhcpd.service
 
 print_header "setting root password..."
 passwd<<EOF
@@ -198,11 +198,13 @@ print_header "installing chef..."
 gem install --no-ri --no-rdoc chef facter
 
 print_header "installing puppet..."
-chroot $CHROOT groupadd puppet
+groupadd puppet
 cd /tmp
 git clone https://github.com/puppetlabs/puppet.git
 cd puppet
 ruby install.rb --bindir=/usr/bin --sbindir=/sbin
+
+#add ruby path to PATH to run gem execs
 
 ENDCHROOT
 
