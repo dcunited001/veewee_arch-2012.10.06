@@ -19,6 +19,7 @@ Veewee::Session.declare({
     'dhcpcd eth0<Enter><Wait>',
     'echo "sshd: ALL" > /etc/hosts.allow<Enter><Wait>',
     'systemctl enable sshd.service<Enter><Wait>',
+    'systemctl start sshd<Enter><Wait><Wait><Wait><Wait><Wait>'
   ],
   # :kickstart_port => "7122", :kickstart_timeout => "10000", :kickstart_file => "aif.cfg",
   :ssh_login_timeout => "10000", :ssh_user => "root", :ssh_password => "vagrant", :ssh_key => "",

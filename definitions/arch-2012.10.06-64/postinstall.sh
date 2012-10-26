@@ -17,8 +17,7 @@ LOCALE_UTF8="$LOCALE.UTF-8"
 
 CHROOT=/mnt
 PAC_BASE="base base-devel grub-bios os-prober"
-PAC_1="sudo vim linux-headers make gcc openssh"
-PAC_2="git ruby yajl zsh glibc pkg-config fakeroot"
+PAC_1="sudo vim linux-headers make gcc openssh git ruby yajl zsh glibc pkg-config fakeroot"
 
 DEVICE=/dev/sda
 PART1=/dev/sda1
@@ -47,7 +46,7 @@ print_line(){
 
 print_header(){
   print_line
-  [[ $# -gt 0 ]] && printf $1
+  [[ $# -gt 0 ]] && printf "$1\n"
   print_line
 }
 
@@ -60,7 +59,7 @@ pause(){ #{{{
 # - update pacman-key?
 # - hostname/hosts
 # - .vbox_version
-# - grub locale
+# - unmount before reboot?
 
 # INSTALL TASKS
 #   https://github.com/helmuthdu/aui/blob/master/aui
@@ -136,7 +135,7 @@ mkinitcpio -p linux
 
 print_header "configuring grub bootloader..."
 modprobe dm-mod
-grub-install --target=$GRUBTARGET --recheck --debug $DEVICE
+grub-install --target=$GRUBTARGET --boot-directory=/boot --recheck --debug $DEVICE
 grub-mkconfig -o /boot/grub/grub.cfg
 # grub-install --target=i386-pc --recheck $DEVICE
 # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch_grub --recheck
@@ -146,6 +145,8 @@ print_header "configuring bootloader locale..."
 mkdir -p /boot/grub/locale
 cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 # vim $CHROOT/boot/grub/grub.cfg
+
+pacman -S --noconfirm $PAC_1
 
 print_header "setting root password..."
 passwd<<EOF
