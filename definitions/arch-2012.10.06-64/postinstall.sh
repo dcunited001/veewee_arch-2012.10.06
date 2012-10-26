@@ -128,6 +128,14 @@ arch-chroot $CHROOT <<ENDCHROOT
 # mount -o bind /dev dev/
 # mount -t devpts pts dev/pts/
 
+#added function because its outside of chroot.
+#  but $VARS are expanded when <<EOF is evaluated
+print_header(){
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+  [[ $# -gt 0 ]] && printf "$1\n"
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+}
+
 print_header "configuring initial ram disk for kernel..."
 mkinitcpio -p linux
 
