@@ -153,15 +153,15 @@ systemctl enable dhcp
 
 print_header "setting root password..."
 passwd<<EOF
-$VUSER
+$VPASS
 $VPASS
 EOF
 
 print_header "setting up vagrant user..."
-groupadd vagrant
-useradd -m -g vagrant -r vagrant
-passwd vagrant<<EOF
-$VUSER
+groupadd $VGROUP
+useradd -m -g $VGROUP -r $VUSER
+passwd $VUSER<<EOF
+$VPASS
 $VPASS
 EOF
 
