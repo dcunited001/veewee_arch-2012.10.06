@@ -16,8 +16,9 @@ LOCALE_8859="$LOCALE ISO-8859"
 LOCALE_UTF8="$LOCALE.UTF-8"
 
 CHROOT=/mnt
-PAC_BASE="base base-devel grub-bios os-prober"
-PAC_1="sudo vim linux-headers make gcc openssh git ruby yajl zsh glibc pkg-config fakeroot"
+PAC_BASE="base base-devel"
+PAC_GRUB="grub-bios os-prober"
+PAC_1="systemd sudo vim linux-headers make gcc openssh git ruby yajl zsh glibc pkg-config fakeroot"
 
 DEVICE=/dev/sda
 PART1=/dev/sda1
@@ -34,24 +35,20 @@ PART2SIZE=
 PART2SIZE=
 PART2BOOT=
 PARTUNIT="-uM"
-  DOSVAR="--DOS"
+DOSVAR="--DOS"
 
 #only Grub2 for now
 BOOTLOADER=Grub2
 GRUBTARGET="-i386-pc"
 
-print_line(){
+print_header(){
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+  [[ $# -gt 0 ]] && printf "$1\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
-print_header(){
-  print_line
-  [[ $# -gt 0 ]] && printf "$1\n"
-  print_line
-}
-
 pause(){ #{{{
-  print_line
+  printf "%$(tput cols)s\n"|tr ' ' '-'
   read -e -sn 1 -p "Press any key to continue..."
 }
 
@@ -99,6 +96,7 @@ mount -t ext4 $PART2 $CHROOT
 
 print_header "installing base, base-devel, grub-bios and os-prober..."
 pacstrap $CHROOT $PAC_BASE
+pacstrap $CHROOT $PAC_GRUB
 
 print_header "generating fstab..."
 genfstab -p $CHROOT >> $CHROOT/etc/fstab
@@ -135,7 +133,7 @@ mkinitcpio -p linux
 
 print_header "configuring grub bootloader..."
 modprobe dm-mod
-grub-install --target=$GRUBTARGET --boot-directory=/boot --recheck --debug $DEVICE
+grub-install --recheck --debug $DEVICE
 grub-mkconfig -o /boot/grub/grub.cfg
 # grub-install --target=i386-pc --recheck $DEVICE
 # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch_grub --recheck
@@ -146,7 +144,12 @@ mkdir -p /boot/grub/locale
 cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 # vim $CHROOT/boot/grub/grub.cfg
 
+print_header "adding pacages..."
 pacman -S --noconfirm $PAC_1
+
+print_header "enabling services..."
+systemctl enable sshd
+systemctl enable dhcp
 
 print_header "setting root password..."
 passwd<<EOF
@@ -155,14 +158,16 @@ $VPASS
 EOF
 
 print_header "setting up vagrant user..."
-useradd -m -G vagrant -r vagrant
-passwd -d vagrant<<EOF
+groupadd vagrant
+useradd -m -g vagrant -r vagrant
+passwd vagrant<<EOF
 $VUSER
 $VPASS
 EOF
 
 #config sudo
 #echo 'root    ALL=(ALL)    ALL' >> /etc/sudoers
+# vagrant user?
 
 #open ssh
 print_header "configuring hosts.allow and hosts.deny..."
