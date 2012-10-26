@@ -1,135 +1,206 @@
 #!/bin/bash
-
-LOGGR='LOG'
-
-# # var to determine package source
 PKGSRC=cd
+VBOX='VBOX'
 date > /etc/vagrant_box_build_time
-if [ "$LOGGR" == "LOG" ]; then
-  echo "========================================" >> /mnt/log.txt
-  date >> /mnt/log.txt
-fi
 
-#download base packages
-pacstrap /mnt base base-devel sudo openssh vim ruby linux-headers make gcc yajl zsh glibc git pkg-config fakeroot
+HOSTNAME=
+VUSER=vagrant
+VPASS=vagrant
+VGROUP=vagrant
 
-if [ "$LOGGR" == "LOG" ]; then
-  echo "installed packages" >> /mnt/log.txt
-fi
-#generate fstab
-genfstab -p /mnt >> /mnt/etc/fstab
-if [ "$LOGGR" == "LOG" ]; then
-  cat /mnt/etc/fstab >> /mnt/log.txt
-fi
+KEYMAP=us
+ZONE=America
+SUB_ZONE=NEW_YORK
+LOCALE="en_US"
+LOCALE_8859="$LOCALE ISO-8859"
+LOCALE_UTF8="$LOCALE.UTF-8"
 
-#install grub
-arch-chroot /mnt pacman -S --noconfirm grub-bios >> /mnt/log.txt
+CHROOT=/mnt
+PAC_BASE="base base-devel grub-bios os-prober"
+PAC_1="sudo vim linux-headers make gcc openssh"
+PAC_2="git ruby yajl zsh glibc pkg-config fakeroot"
 
-# launch automated install
-#  (AIF removed from Arch)
-# su -c 'aif -p automatic -c aif.cfg'
+DEVICE=/dev/sda
+PART1=/dev/sda1
+PART1LABEL='swapfs'
+PART1TYPE=S
+PART1START=0
+PART1SIZE=512
+PART1BOOT=
+PART2=/dev/sda2
+PART2LABEL='rootfs'
+PART2TYPE=L
+PART2START=
+PART2SIZE=
+PART2SIZE=
+PART2BOOT=
+PARTUNIT="-uM"
+  DOSVAR="--DOS"
 
-# copy over the vbox version file
-/bin/cp -f /root/.vbox_version /mnt/root/.vbox_version
+#only Grub2 for now
+BOOTLOADER=Grub2
+GRUBTARGET="-i386-pc"
 
-# chroot into the new system
-# => (these can be replaced with arch-chroot)
-#   => (However, this is apparently not true...)
-# arch-chroot /mnt <<ENDCHROOT
-# mount -o bind /dev /mnt/dev
-# mount -o bind /sys /mnt/sys
-# mount -t proc none /mnt/proc
-chroot /mnt <<ENDCHROOT
+print_line(){
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+}
 
-# make sure network is up and a nameserver is available
-dhcpcd eth0
+print_header(){
+  print_line
+  [[ $# -gt 0 ]] && printf $1
+  print_line
+}
 
-# time/locale
-ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+pause(){ #{{{
+  print_line
+  read -e -sn 1 -p "Press any key to continue..."
+}
 
-# sudo setup
-# note: do not use tabs here, it autocompletes and borks the sudoers file
-cat <<EOF > /etc/sudoers
-root    ALL=(ALL)    ALL
-%wheel    ALL=(ALL)    NOPASSWD: ALL
+#todo:
+# - update pacman-key?
+# - hostname/hosts
+# - .vbox_version
+# - grub locale
+
+# INSTALL TASKS
+#   https://github.com/helmuthdu/aui/blob/master/aui
+# configure_keymap
+# select_editor
+# configure_mirrorlist
+# create_partition
+# format_device
+# install_base_system
+# configure_fstab
+# configure_hostname
+# configure_timezone
+# configure_hardwareclock
+# configure_locale
+# configure_mkinitcpio
+# install_bootloader
+# configure_bootloader
+# root_password
+
+print_header "loading keymap..."
+loadkeys $KEYMAP
+#reflector to alter mirrors
+
+print_header "partitioning disk..."
+sfdisk $PARTUNIT $DEVICE $DOSVAR <<EOF
+  $PART1START,$PART1SIZE,$PART1TYPE,$PART1BOOT
+  $PART2START,$PART2SIZE,$PART2TYPE,$PART2BOOT
 EOF
 
-# set up user accounts
+print_header "formatting disk..."
+mkswap $PART1 -L $PART1LABEL
+mkfs.ext4 $PART2 -L $PART2LABEL
+
+print_header "mounting disk..."
+swapon $PART1
+mount -t ext4 $PART2 $CHROOT
+
+print_header "installing base, base-devel, grub-bios and os-prober..."
+pacstrap $CHROOT $PAC_BASE
+
+print_header "generating fstab..."
+genfstab -p $CHROOT >> $CHROOT/etc/fstab
+
+print_header "setting vconsole.conf..."
+echo "KEYMAP=$KEYMAP" > $CHROOT/etc/vconsole.conf
+echo "FONT=\"\"" > $CHROOT/etc/vconsole.conf
+echo "FONT_MAP=\"\"" > $CHROOT/etc/vconsole.conf
+
+#hostname
+#echo $HOSTNAME > $CHROOT/etc/hostname
+#configure /etc/hosts
+
+# why is this file sometimes missing
+# [[ $VBOX == 'VBOX' ]] && /bin/cp -f /root/.vbox_version $CHROOT/root/.vbox_version
+
+print_header "setting timezone and locale..."
+# chroot $CHROOT ln -s /usr/share/zoneinfo/$ZONE/$SUB_ZONE /etc/localtime
+chroot $CHROOT echo "$ZONE/$SUBZONE" > /etc/timezone
+echo 'LANG="'$LOCALE_UTF8'"' > $CHROOT/etc/locale.conf
+chroot $CHROOT sed -i '/'$LOCALE'/s/^#//' /etc/locale.gen
+hwclock --systohc --utc
+
+print_header "chrooting into new system..."
+arch-chroot $CHROOT <<ENDCHROOT
+# cd $CHROOT/arch
+# mount -t proc proc proc/
+# mount -t sysfs sys sys/
+# mount -o bind /dev dev/
+# mount -t devpts pts dev/pts/
+
+print_header "configuring initial ram disk for kernel..."
+mkinitcpio -p linux
+
+print_header "configuring grub bootloader..."
+modprobe dm-mod
+grub-install --target=$GRUBTARGET --recheck --debug $DEVICE
+grub-mkconfig -o /boot/grub/grub.cfg
+# grub-install --target=i386-pc --recheck $DEVICE
+# grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch_grub --recheck
+# grub-install --root-directory=$CHROOT --boot-directory=$CHROOT/boot --target=$GRUBTARGET $DEVICE
+
+print_header "configuring bootloader locale..."
+mkdir -p /boot/grub/locale
+cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+# vim $CHROOT/boot/grub/grub.cfg
+
+print_header "setting root password..."
 passwd<<EOF
-vagrant
-vagrant
-EOF
-useradd -m -G wheel -r vagrant
-passwd -d vagrant
-passwd vagrant<<EOF
-vagrant
-vagrant
+$VUSER
+$VPASS
 EOF
 
-# create puppet group
-groupadd puppet
+print_header "setting up vagrant user..."
+useradd -m -G vagrant -r vagrant
+passwd -d vagrant<<EOF
+$VUSER
+$VPASS
+EOF
 
-# make sure ssh is allowed
+#config sudo
+#echo 'root    ALL=(ALL)    ALL' >> /etc/sudoers
+
+#open ssh
+print_header "configuring hosts.allow and hosts.deny..."
 echo "sshd:	ALL" > /etc/hosts.allow
-
-# and everything else isn't
 echo "ALL:	ALL" > /etc/hosts.deny
 
-# make sure sshd starts
-# rc.conf removed (now using systemd)
-# sed -i 's:^DAEMONS\(.*\))$:DAEMONS\1 sshd):' /etc/rc.conf
+print_header "configuring ssh key for vagrant user..."
+mkdir /home/$VUSER/.ssh
+chmod 700 /home/$VUSER/.ssh
+curl 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' > /home/$VUSER/.ssh/authorized_keys
+chmod 600 /home/$VUSER/.ssh/authorized_keys
+chown -R $VUSER /home/$VUSER/.ssh
 
-# install mitchellh's ssh key
-mkdir /home/vagrant/.ssh
-chmod 700 /home/vagrant/.ssh
-curl 'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' > /home/vagrant/.ssh/authorized_keys
-chmod 600 /home/vagrant/.ssh/authorized_keys
-chown -R vagrant /home/vagrant/.ssh
-
-# choose a mirror
-# sed -i 's/^#\(.*leaseweb.*\)/\1/' /etc/pacman.d/mirrorlist
-
-# update pacman
-[[ $PKGSRC == 'cd' ]] && pacman -Syy
-[[ $PKGSRC == 'cd' ]] && pacman -S --noconfirm pacman
-
-# upgrade pacman db
+print_header "upgrading pacman..."
 pacman-db-upgrade
-pacman -Syy
+print_header "waka waka..."
+pacman -Syy --noconfirm
 
-# install some packages
-# having problems with these packages now, installing above
-#  (inappropriate ioctl for device?)
-# pacman -S --noconfirm glibc git pkg-config fakeroot
+print_header "installing chef..."
 gem install --no-ri --no-rdoc chef facter
+
+print_header "installing puppet..."
+chroot $CHROOT groupadd puppet
 cd /tmp
 git clone https://github.com/puppetlabs/puppet.git
 cd puppet
 ruby install.rb --bindir=/usr/bin --sbindir=/sbin
 
-# set up networking
-# (this command blows up due to missing rc.conf, etc)
-#   rc.conf has been removed, should i re-add package?
-# [[ $PKGSRC == 'net' ]] && sed -i 's/^\(interface=*\)/\1eth0/' /etc/rc.conf
-
-#build initial ram disk
-# (requires /proc to be mounted)
-mkinitcpio -p linux
-
 ENDCHROOT
-
-#install grub
-grub-install --root-directory=/mnt/ --boot-directory=/mnt/boot --target=i386-pc /dev/sda
-cp /mnt/usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /mnt/boot/grub/locale/en.mo > /mnt/log.txt
-grub-mkconfig -o /mnt/boot/grub/grub.cfg
-
-vim /mnt/boot/grub/grub.cfg
-
-#modify bootloader config
-
-# take down network to prevent next postinstall.sh from starting too soon
-#   (Again, rc.conf has mostly been replaced with systemctl)
-# /etc/rc.d/network stop
 
 # and reboot!
 reboot
+
+#OTHER PACKAGES
+#PAC_SYSD="systemd systemd-sysvcompat systemd-arch-units"
+#PAC_DBUS="dbus"
+#PAC_RAR="rar"
+#PAC_AVAHI="avahi nss-mdns"
+#PAC_ALSA="alsa-utils alsa-plugins"
+#PAC_OSSH="openssh"
+#PAC_GCC="make gcc"
+#PAC_NTFS "ntfs-3g ntfsprogs dosfstools exfat-utils fuse fuse-exfat"
