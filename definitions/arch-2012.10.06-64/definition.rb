@@ -11,27 +11,14 @@ Veewee::Session.declare({
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
-    'dhcpcd eth0<Enter><Wait><Wait>',
-    'echo "sshd: ALL" > /etc/hosts.allow<Enter>',
+    
     'passwd<Enter>',
     'vagrant<Enter>',
     'vagrant<Enter>',
 
-    #partition
-    'DRIVE=/dev/sda<Enter>',
-    'sfdisk -uM $DRIVE --DOS <<EOF<Enter>',
-    '1,512,S<Enter>', # 512 /swap
-    ',,L,*<Enter>',     # x   rest
-    'EOF<Enter>',
-
-    #format/mount
-    'mkswap /dev/sda1 -L swapfs<Enter><Wait><Wait><Wait>',
-    'swapon /dev/sda1<Enter><Wait><Wait><Wait>',
-    'mkfs.ext4 /dev/sda2 -L rootfs<Enter><Wait><Wait><Wait><Wait>',
-    'mount -t ext4 /dev/sda2 /mnt<Enter><Wait>',
-
-    #start ssh
-    '/etc/rc.d/sshd start<Enter><Wait>',
+    'dhcpcd eth0<Enter><Wait>',
+    'echo "sshd: ALL" > /etc/hosts.allow<Enter><Wait>',
+    'systemctl enable sshd.service<Enter><Wait>',
   ],
   # :kickstart_port => "7122", :kickstart_timeout => "10000", :kickstart_file => "aif.cfg",
   :ssh_login_timeout => "10000", :ssh_user => "root", :ssh_password => "vagrant", :ssh_key => "",
