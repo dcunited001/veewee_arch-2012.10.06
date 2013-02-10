@@ -1,2 +1,3 @@
 iso/*.iso
 Gemfile.lock
+.rvmrc
