@@ -1,3 +1,7 @@
+# left over from the veewee arch2011 template
+#   this script was executed after the vbox
+#   restarted for the last time
+
 # # package-query
 # wget http://aur.archlinux.org/packages/package-query/PKGBUILD
 # makepkg -sfci --noconfirm --asroot

@@ -1,5 +1,5 @@
 Veewee::Session.declare({
-  :cpu_count => '1', :memory_size=> '256', 
+  :cpu_count => '1', :memory_size=> '256',
   :disk_size => '10140', :disk_format => 'VDI',:hostiocache => 'off',
   :os_type_id => 'ArchLinux_64',
   :iso_file => "archlinux-2012.10.06-dual.iso",
@@ -11,7 +11,7 @@ Veewee::Session.declare({
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
     '<Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait><Wait>',
-    
+
     'passwd<Enter>',
     'vagrant<Enter>',
     'vagrant<Enter>',
