@@ -5,13 +5,13 @@ This is a basebox that I built, using VeeWee's arch2011 basebox
 as a starting point.  May need to tweak a few things, but I'm hoping
 to use this box as a base for a few other projects.
 
-#### Note: ISO not included
+I like using Arch for VM's because you choose exactly which packages
+are installed.  So you can get the VM to run as little as 256MB of mem.
+
+#### Note - ISO not included:
 I did not include the Arch ISO file into the project.  Make sure you download this
 from a reputable source.  There are lots of sketchy search results.  The ISO I used
 is named **archlinux-2012.10.06-dual.iso**.
-
-I like using Arch for VM's because you choose exactly which packages
-are installed.  So you can get the VM to run as little as 256MB of mem.
 
 Set up:
 =======
