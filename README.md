@@ -9,9 +9,15 @@ I like using Arch for VM's because you choose exactly which packages
 are installed.  So you can get the VM to run as little as 256MB of mem.
 
 #### Note - ISO not included:
-I did not include the Arch ISO file into the project.  Make sure you download this
-from a reputable source.  There are lots of sketchy search results.  The ISO I used
-is named **archlinux-2012.10.06-dual.iso**.
+> I did not include the Arch ISO file into the project.  Make sure you download this
+> from a reputable source.  There are lots of sketchy search results.  The ISO I used
+> is named **archlinux-2012.10.06-dual.iso**.
+
+#### Note - Grub/Initramfs issues:
+> Need to look into it further, but after the basebox is completed,
+> it looks like there's a few issues with restarting the VM.  When GRUB appears,
+> you'll need to select the second option, the fallback initramfs.  Otherwise, the box gets stuck
+> when loading the initramfs.  
 
 Set up:
 =======
