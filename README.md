@@ -73,14 +73,14 @@ involve downloading an iso and other software from the net.  Don't trust just
 any ISO and try to build your own Baseboxes.
 
 #### Vagrant Github:
-> https://github.com/mitchellh/vagrant
+- https://github.com/mitchellh/vagrant
 
 #### VeeWee Github:
-> https://github.com/jedi4ever/veewee
+- https://github.com/jedi4ever/veewee
 
 #### Vagrant Guides:
 - http://seletz.github.com/blog/2012/01/17/creating-vagrant-base-boxes-with-veewee/
 - http://devops.me/2011/10/05/vagrant/
 
 #### great resource for installing arch(desktop):
-> https://github.com/helmuthdu/aui/blob/master/aui
+- https://github.com/helmuthdu/aui/blob/master/aui
