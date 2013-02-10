@@ -31,6 +31,12 @@ Set up:
 8. Multiple restarts are occasionally necessary, this is a typical rough point.
 9. Use/Export your new vagrant box.
 
+Login:
+======
+
+vagrant/vagrant  (non-sudo)
+root/vagrant
+
 Notes:
 ======
 Vagrant is the main tool.  Mostly, VeeWee adds the 'basebox' subcommand to vagrant:
