@@ -48,13 +48,13 @@ Vagrant is the main tool.  Mostly, VeeWee adds the 'basebox' subcommand to vagra
 #### Validate that a Basebox was built correctly:
 
     # uses cucumber for BDD, sweet
-    vagrant basebox validate 'myubuntubox'
+    vagrant basebox validate [name]
 
 #### Export a Basebox to a file which can be shared:
 
     # generates a self-contained box that can be shared:
     #   now anyone can `vagrant up [name]`
-    vagrant basebox export 'myubuntubox'
+    vagrant basebox export [name]
 
 #### To Import a Vagrant Box:
 
